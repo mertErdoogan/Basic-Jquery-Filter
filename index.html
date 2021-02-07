@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js" integrity="sha384-LtrjvnR4Twt/qOuYxE721u19sVFLVSA4hf/rRt6PrZTmiPltdZcI7q7PXQBYTKyf" crossorigin="anonymous"></script>
+</head>
+<body>
+    
+    <div class="input-container">
+        <form>
+            <input style="width: 100%;" type="text" placeholder="filter input" id="filterInput">
+        </form>
+    </div>
+
+    <div class="table-container">
+        <table class="table table-dark">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">First</th>
+                <th scope="col">Last</th>
+                <th scope="col">Touch</th>
+              </tr>
+            </thead>
+            <tbody id="tableContent">
+            </tbody>
+          </table>
+    </div>
+    
+    <script>
+
+        var backspaceFlag = 0;
+
+        const getUsers = async () => {
+            try {
+                return axios.get('https://jsonplaceholder.typicode.com/users')
+            } catch (error) {
+                console.log(error);
+            }
+        }
+
+        function clearTable() {
+            $('#tableContent').empty();
+        }
+
+        const getUserData = () => {
+            setUserDataToTable();
+        }
+
+        const setUserDataToTable = async (filterData) => {
+            const users = await getUsers();
+            if(filterData) {
+                clearTable();
+
+                users.data && users.data.map((item, index) => {
+
+                    if((item.name).includes(filterData) || (item.username).includes(filterData) || (item.email).includes(filterData)) {
+                        let tableItem = 
+                            "<tr> " + 
+                                "<th scope='row'>" + item.id + "</th>" +
+                                "<td>" + item.name + "</td>" +
+                                "<td>" + item.username + "</td>" +
+                                "<td>" + item.email + "</td>" +
+                            "</tr>";
+
+                        $('.table-container table tbody').append(tableItem);
+                    }
+
+                });
+
+            } else {
+
+                users.data && users.data.map((item, index) => {
+                    let tableItem = 
+                    "<tr> " + 
+                        "<th scope='row'>" + item.id + "</th>" +
+                        "<td>" + item.name + "</td>" +
+                        "<td>" + item.username + "</td>" +
+                        "<td>" + item.email + "</td>" +
+                    "</tr>";
+
+                    $('.table-container table tbody').append(tableItem);
+                });
+
+            }
+            
+        }
+        
+        $(document).ready(function() {
+            getUserData();
+
+            $('#filterInput').keyup(function(e){
+                
+                if($(this).val().length > 0) {
+                    setUserDataToTable($(this).val());
+                    backspaceFlag = 0;
+                } else {
+                    if(e.keyCode == 8 && backspaceFlag == 0) {
+                        clearTable();
+                        setUserDataToTable();
+                        backspaceFlag++;
+                    }
+                }
+                
+            });
+
+        });
+
+    </script>
+</body>
+</html>
